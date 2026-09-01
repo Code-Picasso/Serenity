@@ -157,7 +157,6 @@ services:
       PORT: ${FEED_PORT:-8004}
       DATABASE_URL: ${FEED_DATABASE_URL:-postgresql://serenity:serenity@feed-db:5432/feed?sslmode=disable}
       GNEWS_API_KEY: ${GNEWS_API_KEY:-}
-      MEDIASTACK_API_KEY: ${MEDIASTACK_API_KEY:-}
       CURRENTS_API_KEY: ${CURRENTS_API_KEY:-}
       JOKE_API_URL: ${JOKE_API_URL:-https://v2.jokeapi.dev/joke/Any}
       OFFICIAL_JOKE_API_URL: ${OFFICIAL_JOKE_API_URL:-https://official-joke-api.appspot.com/random_joke}

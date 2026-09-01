@@ -12,7 +12,7 @@ This is a full-stack monorepo:
 
 - **Authentication** — email + name + password auth, password reset,
   splash, landing and interest-based onboarding.
-- **Home, feed & search** — personalised feed from GNews / MediaStack / Currents /
+- **Home, feed & search** — personalised feed from GNews / Currents /
   Joke APIs (with mock fallback), full article reading, save, reshare, moderation
   filters and search.
 - **Users** — personal & public profiles, top-readers discovery ranked by activity,

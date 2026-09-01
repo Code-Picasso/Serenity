@@ -50,7 +50,6 @@ All variables are defined in `.env.example`. The most important:
 | `JWT_REFRESH_EXPIRES` | `30d` | Refresh token lifetime |
 | `MOCK_MODE` | `true` | Seed sample feed content when no news API keys are set |
 | `GNEWS_API_KEY` | (empty) | GNews API key |
-| `MEDIASTACK_API_KEY` | (empty) | MediaStack access key |
 | `CURRENTS_API_KEY` | (empty) | Currents API key |
 | `POSTGRES_USER` / `POSTGRES_PASSWORD` | `serenity` / `serenity` | Shared DB credentials |
 

@@ -33,7 +33,6 @@ content):
 
 ```bash
 GNEWS_API_KEY=
-MEDIASTACK_API_KEY=
 CURRENTS_API_KEY=
 ```
 

@@ -111,7 +111,6 @@ app → GET /chat/uploads/<file> (proxied through the gateway) to play it back
 app works with no API keys):
 
 - GNews API
-- MediaStack
 - Currents API
 - Joke API (jokeapi.dev)
 - Official Joke API

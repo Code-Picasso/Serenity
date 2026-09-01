@@ -73,50 +73,6 @@ func FetchGNews(key string) []model.Article {
 	return out
 }
 
-// ---------- MediaStack ----------
-type mediastackResponse struct {
-	Data []struct {
-		Title       string `json:"title"`
-		Description string `json:"description"`
-		URL         string `json:"url"`
-		Image       string `json:"image"`
-		Author      string `json:"author"`
-		PublishedAt string `json:"published_at"`
-		Category    string `json:"category"`
-	} `json:"data"`
-}
-
-func FetchMediaStack(key string) []model.Article {
-	url := fmt.Sprintf("http://api.mediastack.com/v1/news?access_key=%s&languages=en&limit=20", key)
-	body, err := httpGet(url)
-	if err != nil {
-		log.Printf("[ingest] mediastack failed: %v", err)
-		return nil
-	}
-	var res mediastackResponse
-	if err := json.Unmarshal(body, &res); err != nil {
-		log.Printf("[ingest] mediastack decode failed: %v", err)
-		return nil
-	}
-	var out []model.Article
-	for _, a := range res.Data {
-		out = append(out, model.Article{
-			Source:      "mediastack",
-			SourceID:    a.URL,
-			Title:       a.Title,
-			Description: a.Description,
-			Content:     a.Description,
-			URL:         a.URL,
-			ImageURL:    a.Image,
-			Author:      a.Author,
-			Category:    normalizeCategory(a.Category),
-			Topic:       classifyTopic(a.Title, a.Description, normalizeCategory(a.Category)),
-			PublishedAt: parseTime(a.PublishedAt),
-		})
-	}
-	return out
-}
-
 // ---------- Currents ----------
 type currentsResponse struct {
 	News []struct {
@@ -380,4 +336,3 @@ func jokeTopic(category string) string {
 		return "jokes"
 	}
 }
-

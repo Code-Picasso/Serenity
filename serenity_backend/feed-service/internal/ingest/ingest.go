@@ -46,9 +46,6 @@ func SeedAndFetch(repo *repository.Repository, cfg config.Config) error {
 	if cfg.GNewsAPIKey != "" {
 		all = append(all, FetchGNews(cfg.GNewsAPIKey)...)
 	}
-	if cfg.MediaStackAPIKey != "" {
-		all = append(all, FetchMediaStack(cfg.MediaStackAPIKey)...)
-	}
 	if cfg.CurrentsAPIKey != "" {
 		all = append(all, FetchCurrents(cfg.CurrentsAPIKey)...)
 	}

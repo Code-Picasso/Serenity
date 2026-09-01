@@ -6,16 +6,15 @@ import (
 )
 
 type Config struct {
-	Port                 string
-	DatabaseURL          string
-	GNewsAPIKey          string
-	MediaStackAPIKey     string
-	CurrentsAPIKey       string
-	JokeAPIURL           string
-	OfficialJokeAPIURL   string
-	IngestIntervalMin    int
-	MockMode             bool
-	UserServiceURL       string
+	Port               string
+	DatabaseURL        string
+	GNewsAPIKey        string
+	CurrentsAPIKey     string
+	JokeAPIURL         string
+	OfficialJokeAPIURL string
+	IngestIntervalMin  int
+	MockMode           bool
+	UserServiceURL     string
 }
 
 func Load() Config {
@@ -23,7 +22,6 @@ func Load() Config {
 		Port:               getEnv("PORT", "8004"),
 		DatabaseURL:        getEnv("DATABASE_URL", "postgresql://serenity:serenity@localhost:5434/feed?sslmode=disable"),
 		GNewsAPIKey:        os.Getenv("GNEWS_API_KEY"),
-		MediaStackAPIKey:   os.Getenv("MEDIASTACK_API_KEY"),
 		CurrentsAPIKey:     os.Getenv("CURRENTS_API_KEY"),
 		JokeAPIURL:         getEnv("JOKE_API_URL", "https://v2.jokeapi.dev/joke/Any"),
 		OfficialJokeAPIURL: getEnv("OFFICIAL_JOKE_API_URL", "https://official-joke-api.appspot.com/random_joke"),
