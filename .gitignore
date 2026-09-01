@@ -1,0 +1,38 @@
+# OS / editor
+.DS_Store
+*.log
+.idea/
+.vscode/
+*.iml
+
+# Node
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+npm-debug.log*
+
+# Go
+bin/
+*.exe
+*.test
+*.out
+
+# Env / secrets
+.env
+.env.local
+*.pem
+
+# Uploads (local runtime data)
+uploads/
+storage/
+
+# Flutter/Dart
+.dart_tool/
+.pub-cache/
+.pub/
+build/
+coverage/
+**/ios/Flutter/.last_build_id
+.flutter-plugins-dependencies
+app.*.symbols

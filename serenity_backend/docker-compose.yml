@@ -1,0 +1,211 @@
+name: serenity
+
+services:
+  # ============ Databases (PostgreSQL, one per stateful service) ============
+  auth-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-serenity}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-serenity}
+      POSTGRES_DB: auth
+    ports:
+      - "5432:5432"
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-serenity}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  chat-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-serenity}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-serenity}
+      POSTGRES_DB: chat
+    ports:
+      - "5433:5432"
+    volumes:
+      - chat-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-serenity}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  feed-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-serenity}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-serenity}
+      POSTGRES_DB: feed
+    ports:
+      - "5434:5432"
+    volumes:
+      - feed-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-serenity}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  post-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-serenity}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-serenity}
+      POSTGRES_DB: post
+    ports:
+      - "5435:5432"
+    volumes:
+      - post-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-serenity}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  user-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-serenity}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-serenity}
+      POSTGRES_DB: "user"
+    ports:
+      - "5436:5432"
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-serenity}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  notification-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-serenity}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-serenity}
+      POSTGRES_DB: notification
+    ports:
+      - "5437:5432"
+    volumes:
+      - notification-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-serenity}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ============ Services ============
+  api-gateway:
+    build: ./api-gateway
+    container_name: serenity-gateway
+    environment:
+      PORT: ${GATEWAY_PORT:-8000}
+      JWT_SECRET: ${JWT_SECRET:-change-me}
+      AUTH_SERVICE_URL: ${AUTH_SERVICE_URL:-http://auth-service:8001}
+      CHAT_SERVICE_URL: ${CHAT_SERVICE_URL:-http://chat-service:8002}
+      FEED_SERVICE_URL: ${FEED_SERVICE_URL:-http://feed-service:8004}
+      POST_SERVICE_URL: ${POST_SERVICE_URL:-http://post-service:8005}
+      USER_SERVICE_URL: ${USER_SERVICE_URL:-http://user-service:8006}
+      NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL:-http://notification-service:8007}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-60000}
+      RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-300}
+    ports:
+      - "${GATEWAY_PORT:-8000}:8000"
+    depends_on:
+      - auth-service
+      - chat-service
+      - feed-service
+      - post-service
+      - user-service
+      - notification-service
+
+  auth-service:
+    build: ./auth-service
+    container_name: serenity-auth
+    environment:
+      PORT: ${AUTH_PORT:-8001}
+      DATABASE_URL: ${AUTH_DATABASE_URL:-postgresql://serenity:serenity@auth-db:5432/auth?schema=public}
+      JWT_SECRET: ${JWT_SECRET:-change-me}
+      JWT_ACCESS_EXPIRES: ${JWT_ACCESS_EXPIRES:-15m}
+      JWT_REFRESH_EXPIRES: ${JWT_REFRESH_EXPIRES:-30d}
+    depends_on:
+      auth-db:
+        condition: service_healthy
+
+  chat-service:
+    build: ./chat-service
+    container_name: serenity-chat
+    environment:
+      PORT: ${CHAT_PORT:-8002}
+      DATABASE_URL: ${CHAT_DATABASE_URL:-postgresql://serenity:serenity@chat-db:5432/chat?schema=public}
+      JWT_SECRET: ${JWT_SECRET:-change-me}
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+    volumes:
+      - chat-uploads:/app/uploads
+    depends_on:
+      chat-db:
+        condition: service_healthy
+
+  feed-service:
+    build: ./feed-service
+    container_name: serenity-feed
+    environment:
+      PORT: ${FEED_PORT:-8004}
+      DATABASE_URL: ${FEED_DATABASE_URL:-postgresql://serenity:serenity@feed-db:5432/feed?sslmode=disable}
+      GNEWS_API_KEY: ${GNEWS_API_KEY:-}
+      MEDIASTACK_API_KEY: ${MEDIASTACK_API_KEY:-}
+      CURRENTS_API_KEY: ${CURRENTS_API_KEY:-}
+      JOKE_API_URL: ${JOKE_API_URL:-https://v2.jokeapi.dev/joke/Any}
+      OFFICIAL_JOKE_API_URL: ${OFFICIAL_JOKE_API_URL:-https://official-joke-api.appspot.com/random_joke}
+      INGEST_INTERVAL_MINUTES: ${INGEST_INTERVAL_MINUTES:-30}
+      MOCK_MODE: ${MOCK_MODE:-true}
+    depends_on:
+      feed-db:
+        condition: service_healthy
+
+  post-service:
+    build: ./post-service
+    container_name: serenity-post
+    environment:
+      PORT: ${POST_PORT:-8005}
+      DATABASE_URL: ${POST_DATABASE_URL:-postgresql://serenity:serenity@post-db:5432/post?sslmode=disable}
+    volumes:
+      - post-uploads:/app/uploads
+    depends_on:
+      post-db:
+        condition: service_healthy
+
+  user-service:
+    build: ./user-service
+    container_name: serenity-user
+    environment:
+      PORT: ${USER_PORT:-8006}
+      DATABASE_URL: ${USER_DATABASE_URL:-postgresql://serenity:serenity@user-db:5432/user?sslmode=disable}
+    depends_on:
+      user-db:
+        condition: service_healthy
+
+  notification-service:
+    build: ./notification-service
+    container_name: serenity-notification
+    environment:
+      PORT: ${NOTIFICATION_PORT:-8007}
+      DATABASE_URL: ${NOTIFICATION_DATABASE_URL:-postgresql://serenity:serenity@notification-db:5432/notification?sslmode=disable}
+    depends_on:
+      notification-db:
+        condition: service_healthy
+
+volumes:
+  auth-db-data:
+  chat-db-data:
+  feed-db-data:
+  post-db-data:
+  user-db-data:
+  notification-db-data:
+  chat-uploads:
+  post-uploads:
+
