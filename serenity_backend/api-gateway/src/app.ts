@@ -3,7 +3,6 @@ import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import { config } from './config';
 import { authMiddleware } from './middleware/auth';
-import { errorHandler, notFound } from './middleware/errorHandler';
 import { setupSwagger } from './swagger';
 
 export function createApp(): express.Express {
@@ -32,9 +31,6 @@ export function createApp(): express.Express {
   setupSwagger(app);
 
   app.use(authMiddleware);
-
-  app.use(notFound);
-  app.use(errorHandler);
 
   return app;
 }

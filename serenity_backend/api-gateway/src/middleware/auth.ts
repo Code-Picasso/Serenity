@@ -32,7 +32,23 @@ function isPublic(path: string): boolean {
   return PUBLIC_PATHS.some((p) => path === p || path.startsWith(`${p}/`));
 }
 
+/**
+ * Routes that are only meant to be called service-to-service (bypassing the
+ * gateway). Reject them here so a client with a valid token cannot forge
+ * activity scores or notifications for arbitrary users.
+ */
+function isInternalOnly(req: Request): boolean {
+  if (req.method === 'POST' && req.path === '/notifications') return true;
+  if (req.method === 'POST' && /^\/users\/[^/]+\/activity$/.test(req.path)) return true;
+  return false;
+}
+
 export function authMiddleware(req: Request, res: Response, next: NextFunction): void {
+  if (isInternalOnly(req)) {
+    res.status(403).json({ error: 'Forbidden', message: 'This endpoint is internal only' });
+    return;
+  }
+
   if (isPublic(req.path)) {
     next();
     return;

@@ -40,7 +40,7 @@ func (h *Handler) List(c *gin.Context) {
 		return
 	}
 	page := intQuery(c, "page", 1)
-	limit := intQuery(c, "limit", 20)
+	limit := limitQuery(c, 20)
 	items, total, err := h.repo.List(userID, page, limit)
 	if err != nil {
 		respondError(c, http.StatusInternalServerError, "Failed to load notifications")
@@ -134,6 +134,36 @@ func intQuery(c *gin.Context, key string, fallback int) int {
 	return n
 }
 
+// maxPageSize bounds the number of items a client may request per page.
+const maxPageSize = 100
+
+func limitQuery(c *gin.Context, fallback int) int {
+	n := intQuery(c, "limit", fallback)
+	if n > maxPageSize {
+		return maxPageSize
+	}
+	return n
+}
+
 func respondError(c *gin.Context, status int, message string) {
-	c.JSON(status, gin.H{"error": message})
+	c.JSON(status, gin.H{"error": errorType(status), "message": message})
+}
+
+// errorType maps an HTTP status to a stable error code matching the Node
+// services so clients see one error shape across the whole backend.
+func errorType(status int) string {
+	switch status {
+	case http.StatusBadRequest:
+		return "ValidationError"
+	case http.StatusUnauthorized:
+		return "UnauthorizedError"
+	case http.StatusForbidden:
+		return "ForbiddenError"
+	case http.StatusNotFound:
+		return "NotFoundError"
+	case http.StatusConflict:
+		return "ConflictError"
+	default:
+		return "Internal Server Error"
+	}
 }

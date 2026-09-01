@@ -2,12 +2,17 @@ import http from 'http';
 import { createApp } from './app';
 import { config } from './config';
 import { registerProxies } from './proxy';
+import { errorHandler, notFound } from './middleware/errorHandler';
 
 const app = createApp();
 const server = http.createServer(app);
 
-// Re-register proxies with the server reference so WebSocket upgrades work.
+// Proxy routes must be registered before the notFound/errorHandler catch-alls,
+// otherwise every API request would short-circuit with a 404.
 registerProxies(app, server);
+
+app.use(notFound);
+app.use(errorHandler);
 
 server.listen(config.port, () => {
   console.log(`Serenity API Gateway listening on :${config.port}`);
