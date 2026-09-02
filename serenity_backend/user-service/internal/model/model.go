@@ -23,7 +23,6 @@ func (b *Base) BeforeCreate(_ *gorm.DB) error {
 type Profile struct {
 	Base
 	UserID         string `gorm:"size:36;uniqueIndex" json:"userId"`
-	Email          string `gorm:"size:255" json:"email"`
 	Name           string `gorm:"size:255" json:"name"`
 	Username       string `gorm:"size:100;index" json:"username"`
 	Bio            string `gorm:"type:text" json:"bio"`

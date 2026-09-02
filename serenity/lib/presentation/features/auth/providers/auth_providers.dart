@@ -29,12 +29,12 @@ class AuthController extends Notifier<AuthState> {
     state = AuthState(user: user, isLoading: false);
   }
 
-  Future<void> login({required String email, required String password}) async {
+  Future<void> login({required String username, required String password}) async {
     state = state.copyWith(isLoading: true);
     try {
       final result = await ref
           .read(authRepositoryProvider)
-          .login(email: email, password: password);
+          .login(username: username, password: password);
       state = AuthState(user: result.user, isLoading: false);
     } catch (_) {
       state = const AuthState(isLoading: false);
@@ -42,29 +42,20 @@ class AuthController extends Notifier<AuthState> {
     }
   }
 
-  Future<Map<String, dynamic>> register({
-    required String email,
+  Future<void> register({
+    required String username,
     required String password,
     required String name,
+    required String gender,
   }) async {
     state = state.copyWith(isLoading: true);
     try {
-      final result = await ref
-          .read(authRepositoryProvider)
-          .register(email: email, password: password, name: name);
-      state = const AuthState(isLoading: false);
-      return result;
-    } catch (_) {
-      state = const AuthState(isLoading: false);
-      rethrow;
-    }
-  }
-
-  Future<void> verifyEmail({required String code}) async {
-    state = state.copyWith(isLoading: true);
-    try {
-      final result =
-          await ref.read(authRepositoryProvider).verifyEmail(code: code);
+      final result = await ref.read(authRepositoryProvider).register(
+            username: username,
+            password: password,
+            name: name,
+            gender: gender,
+          );
       state = AuthState(user: result.user, isLoading: false);
     } catch (_) {
       state = const AuthState(isLoading: false);

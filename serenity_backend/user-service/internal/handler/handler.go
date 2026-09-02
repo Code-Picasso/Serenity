@@ -47,7 +47,7 @@ func (h *Handler) Me(c *gin.Context) {
 		respondError(c, http.StatusUnauthorized, "User id is required")
 		return
 	}
-	profile, err := h.repo.EnsureProfile(userID, c.GetHeader("X-User-Email"), c.GetHeader("X-User-Name"))
+	profile, err := h.repo.EnsureProfile(userID, c.GetHeader("X-User-Username"), c.GetHeader("X-User-Name"))
 	if err != nil {
 		respondError(c, http.StatusInternalServerError, "Failed to load profile")
 		return
@@ -61,7 +61,7 @@ func (h *Handler) UpdateMe(c *gin.Context) {
 		respondError(c, http.StatusUnauthorized, "User id is required")
 		return
 	}
-	if _, err := h.repo.EnsureProfile(userID, c.GetHeader("X-User-Email"), c.GetHeader("X-User-Name")); err != nil {
+	if _, err := h.repo.EnsureProfile(userID, c.GetHeader("X-User-Username"), c.GetHeader("X-User-Name")); err != nil {
 		respondError(c, http.StatusInternalServerError, "Failed to load profile")
 		return
 	}
@@ -156,7 +156,7 @@ func (h *Handler) Follow(c *gin.Context) {
 		respondError(c, http.StatusUnauthorized, "User id is required")
 		return
 	}
-	if _, err := h.repo.EnsureProfile(followerID, c.GetHeader("X-User-Email"), c.GetHeader("X-User-Name")); err != nil {
+	if _, err := h.repo.EnsureProfile(followerID, c.GetHeader("X-User-Username"), c.GetHeader("X-User-Name")); err != nil {
 		respondError(c, http.StatusInternalServerError, "Failed to load profile")
 		return
 	}

@@ -4,14 +4,14 @@ import { config } from '../config';
 
 export interface AuthPayload {
   sub: string;
-  email: string;
+  username: string;
   name?: string;
 }
 
 /**
  * Paths that do not require a bearer token. The gateway is the security
  * boundary: protected routes have their JWT verified here and the verified
- * user id/email is injected as trusted headers for downstream services.
+ * user id/username is injected as trusted headers for downstream services.
  */
 const PUBLIC_PATHS = [
   '/',
@@ -21,12 +21,8 @@ const PUBLIC_PATHS = [
   '/openapi.yaml',
   '/socket.io',
   '/auth/register',
-  '/auth/verify-email',
-  '/auth/resend-verification',
   '/auth/login',
   '/auth/refresh',
-  '/auth/forgot-password',
-  '/auth/reset-password',
 ];
 
 function isPublic(path: string): boolean {
@@ -66,7 +62,7 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
     const token = header.slice('Bearer '.length);
     const payload = jwt.verify(token, config.jwtSecret) as AuthPayload;
     req.headers['x-user-id'] = payload.sub;
-    req.headers['x-user-email'] = payload.email || '';
+    req.headers['x-user-username'] = payload.username || '';
     req.headers['x-user-name'] = payload.name || '';
     next();
   } catch {

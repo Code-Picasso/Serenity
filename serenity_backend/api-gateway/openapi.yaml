@@ -45,73 +45,40 @@ paths:
     post:
       tags: [Auth]
       security: []
-      summary: Create an account with email/password
+      summary: Create an account with username/password
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [email, password, name]
+              required: [username, password, name, gender]
               properties:
-                email: { type: string, format: email }
+                username: { type: string, minLength: 3, maxLength: 30, pattern: '^[a-zA-Z0-9_.]+$' }
                 password: { type: string, minLength: 8 }
                 name: { type: string }
+                gender:
+                  type: string
+                  enum: [male, female, other, prefer_not_to_say]
       responses:
         '201':
-          description: Created; a verification code has been emailed (dev only: devVerificationToken)
+          description: Created; returns access + refresh tokens and user
         '409':
-          description: Email already registered
-  /auth/verify-email:
-    post:
-      tags: [Auth]
-      security: []
-      summary: Verify an account with the emailed code
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [code]
-              properties:
-                code: { type: string }
-      responses:
-        '200':
-          description: Verified; returns access + refresh tokens and user
-        '401':
-          description: Invalid or expired verification code
-  /auth/resend-verification:
-    post:
-      tags: [Auth]
-      security: []
-      summary: Resend the verification code for an unverified account
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [email]
-              properties:
-                email: { type: string, format: email }
-      responses:
-        '200':
-          description: Code sent if an unverified account exists (dev only: devVerificationToken)
+          description: Username already taken
   /auth/login:
     post:
       tags: [Auth]
       security: []
-      summary: Login with email/password
+      summary: Login with username/password
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [email, password]
+              required: [username, password]
               properties:
-                email: { type: string }
+                username: { type: string }
                 password: { type: string }
       responses:
         '200':

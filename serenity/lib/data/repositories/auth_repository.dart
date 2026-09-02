@@ -9,25 +9,24 @@ class AuthRepository {
 
   AuthRepository(this._remote);
 
-  Future<Map<String, dynamic>> register({
-    required String email,
+  Future<AuthResult> register({
+    required String username,
     required String password,
     required String name,
-  }) {
-    return _remote.register(email: email, password: password, name: name);
-  }
-
-  Future<AuthResult> verifyEmail({required String code}) async {
-    final result = await _remote.verifyEmail(code: code);
+    required String gender,
+  }) async {
+    final result = await _remote.register(
+      username: username,
+      password: password,
+      name: name,
+      gender: gender,
+    );
     await _persist(result);
     return result;
   }
 
-  Future<Map<String, dynamic>> resendVerification(String email) =>
-      _remote.resendVerification(email);
-
-  Future<AuthResult> login({required String email, required String password}) async {
-    final result = await _remote.login(email: email, password: password);
+  Future<AuthResult> login({required String username, required String password}) async {
+    final result = await _remote.login(username: username, password: password);
     await _persist(result);
     return result;
   }
@@ -56,11 +55,6 @@ class AuthRepository {
   }
 
   Future<bool> isLoggedIn() => _store.isLoggedIn();
-
-  Future<Map<String, dynamic>> forgotPassword(String email) => _remote.forgotPassword(email);
-
-  Future<void> resetPassword({required String token, required String newPassword}) =>
-      _remote.resetPassword(token: token, newPassword: newPassword);
 
   Future<void> _persist(AuthResult result) async {
     await _store.saveTokens(

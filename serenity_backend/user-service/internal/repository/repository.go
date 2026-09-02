@@ -24,7 +24,7 @@ func (r *Repository) GetProfile(userID string) (*model.Profile, error) {
 	return &p, nil
 }
 
-func (r *Repository) EnsureProfile(userID, email, name string) (*model.Profile, error) {
+func (r *Repository) EnsureProfile(userID, username, name string) (*model.Profile, error) {
 	p, err := r.GetProfile(userID)
 	if err == nil {
 		return p, nil
@@ -32,7 +32,7 @@ func (r *Repository) EnsureProfile(userID, email, name string) (*model.Profile, 
 	if err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
-	profile := model.Profile{UserID: userID, Email: email, Name: name, IsPublic: true}
+	profile := model.Profile{UserID: userID, Username: username, Name: name, IsPublic: true}
 	if err := r.db.Create(&profile).Error; err != nil {
 		return nil, err
 	}

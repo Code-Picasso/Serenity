@@ -7,38 +7,41 @@ Interactive docs (Swagger UI) are available at `http://localhost:8000/docs`.
 
 - JSON in/out. Errors use `{ "error": "<type>", "message": "<detail>" }`.
 - Protected routes require `Authorization: Bearer <accessToken>`.
-- The gateway verifies the JWT and forwards `x-user-id`/`x-user-email`/`x-user-name`
+- The gateway verifies the JWT and forwards `x-user-id`/`x-user-username`/`x-user-name`
   to the service.
 
 ## Auth (`/auth`)
 
+Accounts are identified by **username** — there is no email anywhere in the system,
+and therefore no email verification and no password reset. A forgotten password
+cannot be recovered; only `/auth/change-password` (while signed in) can change it.
+
 | Method | Path | Auth | Description |
 | --- | --- | --- | --- |
-| POST | `/auth/register` | — | Create account (`email`, `password`, `name`) |
-| POST | `/auth/verify-email` | — | Verify account with emailed code (`code`) |
-| POST | `/auth/resend-verification` | — | Resend verification code (`email`) |
-| POST | `/auth/login` | — | Login with credentials |
+| POST | `/auth/register` | — | Create account (`username`, `password`, `name`, `gender`) |
+| POST | `/auth/login` | — | Login with `username` + `password` |
 | POST | `/auth/refresh` | — | Exchange refresh token for a new pair |
 | POST | `/auth/logout` | ✓ | Revoke refresh token |
 | GET | `/auth/me` | ✓ | Current user |
-| POST | `/auth/forgot-password` | — | Request password reset |
-| POST | `/auth/reset-password` | — | Reset with token + new password |
 | POST | `/auth/change-password` | ✓ | Change password |
 
-### Example — register response
+`username` is 3–30 characters of letters, numbers, `_` or `.`, stored lowercase.
+`gender` must be one of `male`, `female`, `other`, `prefer_not_to_say`.
 
-```json
-{ "message": "Check your email to verify your account.", "devVerificationToken": "123456" }
-```
+### Example — register / login response
 
-`devVerificationToken` is only returned when `NODE_ENV` is not `production` (so the
-flow can be completed locally without SMTP). In production the code is emailed.
-
-### Example — verify-email / login response
+Registration signs the user straight in; there is no verification step.
 
 ```json
 {
-  "user": { "id": "uuid", "email": "a@b.com", "name": "Ada", "avatarUrl": null, "provider": "credentials" },
+  "user": {
+    "id": "uuid",
+    "username": "ada",
+    "name": "Ada",
+    "gender": "female",
+    "avatarUrl": null,
+    "provider": "credentials"
+  },
   "accessToken": "<jwt>",
   "refreshToken": "<jwt>"
 }

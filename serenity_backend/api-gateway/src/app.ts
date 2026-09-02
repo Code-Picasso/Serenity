@@ -9,8 +9,12 @@ export function createApp(): express.Express {
   const app = express();
   app.disable('x-powered-by');
   app.use(cors({ origin: '*', credentials: true }));
-  app.use(express.json({ limit: '2mb' }));
-  app.use(express.urlencoded({ extended: true }));
+
+  // NOTE: no body parser here on purpose. The gateway is a pure streaming
+  // proxy and never reads req.body; parsing it would consume the request
+  // stream and http-proxy-middleware would forward a Content-Length with no
+  // payload, hanging every POST/PUT/PATCH until the client times out.
+  // If a body parser is ever needed, add `proxyReq: fixRequestBody` in proxy.ts.
 
   app.use(
     rateLimit({

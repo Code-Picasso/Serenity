@@ -48,8 +48,7 @@ All variables are defined in `.env.example`. The most important:
 | `JWT_SECRET` | `change-me` | Signing key shared by gateway + auth + chat |
 | `JWT_ACCESS_EXPIRES` | `15m` | Access token lifetime |
 | `JWT_REFRESH_EXPIRES` | `30d` | Refresh token lifetime |
-| `SMTP_HOST` | (empty) | SMTP server for verification/reset emails; empty = skip sending |
-| `APP_BASE_URL` | `http://localhost:8000` | Base URL used in emailed links |
+| `APP_BASE_URL` | `http://localhost:8000` | Public base URL of the gateway |
 | `MOCK_MODE` | `true` | Seed sample feed content when no news API keys are set |
 | `GNEWS_API_KEY` | (empty) | GNews API key |
 | `CURRENTS_API_KEY` | (empty) | Currents API key |
@@ -70,20 +69,15 @@ curl http://localhost:8001/health            # auth (direct)
 ### Auth flow
 
 ```bash
-# register (returns a devVerificationToken in local mode, no tokens yet)
+# register -> signs you straight in and returns tokens (no verification step)
 curl -X POST http://localhost:8000/auth/register \
   -H 'Content-Type: application/json' \
-  -d '{"email":"a@b.com","password":"password123","name":"Ada"}'
+  -d '{"username":"ada","password":"password123","name":"Ada","gender":"female"}'
 
-# verify email with the emailed code (or the devVerificationToken above) -> returns tokens
-curl -X POST http://localhost:8000/auth/verify-email \
-  -H 'Content-Type: application/json' \
-  -d '{"code":"123456"}'
-
-# login (only works once verified)
+# login
 curl -X POST http://localhost:8000/auth/login \
   -H 'Content-Type: application/json' \
-  -d '{"email":"a@b.com","password":"password123"}'
+  -d '{"username":"ada","password":"password123"}'
 ```
 
 Use the returned `accessToken` for authenticated requests:
@@ -92,19 +86,16 @@ Use the returned `accessToken` for authenticated requests:
 curl http://localhost:8000/feed -H 'Authorization: Bearer <accessToken>'
 ```
 
-### Password reset (local mode)
+### Password changes
 
-`POST /auth/forgot-password` returns a `devResetToken` when `NODE_ENV` is not
-`production`, so you can complete the flow without email:
+There is no email in the system, so there is **no password reset flow** — a
+forgotten password cannot be recovered. A signed-in user can change theirs:
 
 ```bash
-curl -X POST http://localhost:8000/auth/forgot-password \
-  -H 'Content-Type: application/json' -d '{"email":"a@b.com"}'
-# -> { "message": "...", "devResetToken": "<token>" }
-
-curl -X POST http://localhost:8000/auth/reset-password \
+curl -X POST http://localhost:8000/auth/change-password \
+  -H 'Authorization: Bearer <accessToken>' \
   -H 'Content-Type: application/json' \
-  -d '{"token":"<token>","newPassword":"newpassword123"}'
+  -d '{"currentPassword":"password123","newPassword":"newpassword123"}'
 ```
 
 ## Local development without Docker

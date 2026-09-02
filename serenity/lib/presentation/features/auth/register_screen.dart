@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/errors/app_exception.dart';
 import '../../../core/extensions/context_extensions.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../data/models/user.dart';
 import 'providers/auth_providers.dart';
-import 'verify_email_screen.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -16,15 +18,16 @@ class RegisterScreen extends ConsumerStatefulWidget {
 class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _name = TextEditingController();
-  final _email = TextEditingController();
+  final _username = TextEditingController();
   final _password = TextEditingController();
   final _confirm = TextEditingController();
+  Gender? _gender;
   bool _obscure = true;
 
   @override
   void dispose() {
     _name.dispose();
-    _email.dispose();
+    _username.dispose();
     _password.dispose();
     _confirm.dispose();
     super.dispose();
@@ -45,15 +48,38 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               children: [
                 TextFormField(
                   controller: _name,
+                  textCapitalization: TextCapitalization.words,
                   decoration: const InputDecoration(labelText: 'Full name', prefixIcon: Icon(Icons.person_outline)),
                   validator: (v) => (v == null || v.trim().isEmpty) ? 'Enter your name' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: _email,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.email_outlined)),
-                  validator: (v) => (v == null || !v.contains('@')) ? 'Enter a valid email' : null,
+                  controller: _username,
+                  autocorrect: false,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9_.]')),
+                    LengthLimitingTextInputFormatter(30),
+                  ],
+                  decoration: const InputDecoration(
+                    labelText: 'Username',
+                    prefixIcon: Icon(Icons.alternate_email),
+                    helperText: '3-30 characters: letters, numbers, _ or .',
+                  ),
+                  validator: _validateUsername,
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<Gender>(
+                  initialValue: _gender,
+                  decoration: const InputDecoration(
+                    labelText: 'Gender',
+                    prefixIcon: Icon(Icons.wc_outlined),
+                  ),
+                  items: [
+                    for (final g in Gender.values)
+                      DropdownMenuItem(value: g, child: Text(g.label)),
+                  ],
+                  onChanged: (g) => setState(() => _gender = g),
+                  validator: (v) => v == null ? 'Select your gender' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -96,25 +122,27 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     );
   }
 
+  String? _validateUsername(String? v) {
+    final value = v?.trim() ?? '';
+    if (value.length < 3) return 'At least 3 characters';
+    if (!RegExp(r'^[a-zA-Z0-9_.]+$').hasMatch(value)) {
+      return 'Only letters, numbers, _ or .';
+    }
+    return null;
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     try {
-      final res = await ref.read(authControllerProvider.notifier).register(
-            email: _email.text.trim(),
+      await ref.read(authControllerProvider.notifier).register(
+            username: _username.text.trim(),
             password: _password.text,
             name: _name.text.trim(),
+            gender: _gender!.value,
           );
-      if (mounted) {
-        context.pushReplacement(
-          AppRoutes.verifyEmail,
-          arguments: VerifyEmailArgs(
-            email: _email.text.trim(),
-            devToken: res['devVerificationToken'] as String?,
-          ),
-        );
-      }
+      if (mounted) context.pushAndRemoveUntil(AppRoutes.onboarding);
     } catch (e) {
-      if (mounted) context.showSnack(e.toString());
+      if (mounted) context.showSnack(errorText(e));
     }
   }
 }

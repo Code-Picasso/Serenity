@@ -10,7 +10,7 @@ This is a full-stack monorepo:
 
 ## Features
 
-- **Authentication** — email + name + password auth, password reset,
+- **Authentication** — username + name + password + gender auth,
   splash, landing and interest-based onboarding.
 - **Home, feed & search** — personalised feed from GNews / Currents /
   Joke APIs (with mock fallback), full article reading, save, reshare, moderation

@@ -1,7 +1,6 @@
 class Profile {
   final String id;
   final String userId;
-  final String email;
   final String name;
   final String? username;
   final String? bio;
@@ -18,7 +17,6 @@ class Profile {
   const Profile({
     required this.id,
     required this.userId,
-    this.email = '',
     this.name = '',
     this.username,
     this.bio,
@@ -36,7 +34,6 @@ class Profile {
   factory Profile.fromJson(Map<String, dynamic> json) => Profile(
         id: json['id'] as String? ?? '',
         userId: json['userId'] as String? ?? '',
-        email: json['email'] as String? ?? '',
         name: json['name'] as String? ?? '',
         username: json['username'] as String?,
         bio: json['bio'] as String?,

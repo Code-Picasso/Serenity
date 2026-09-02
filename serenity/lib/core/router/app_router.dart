@@ -3,12 +3,10 @@ import 'package:flutter/material.dart';
 import '../../data/models/article.dart';
 import '../../data/models/conversation.dart';
 import '../../data/models/profile.dart';
-import '../../presentation/features/auth/forgot_password_screen.dart';
 import '../../presentation/features/auth/landing_screen.dart';
 import '../../presentation/features/auth/login_screen.dart';
 import '../../presentation/features/auth/register_screen.dart';
 import '../../presentation/features/auth/splash_screen.dart';
-import '../../presentation/features/auth/verify_email_screen.dart';
 import '../../presentation/features/chat/chat_screen.dart';
 import '../../presentation/features/feed/read_article_screen.dart';
 import '../../presentation/features/home/home_shell.dart';
@@ -36,10 +34,6 @@ class AppRouter {
         return _route(const LoginScreen());
       case AppRoutes.register:
         return _route(const RegisterScreen());
-      case AppRoutes.verifyEmail:
-        return _route(VerifyEmailScreen(args: args as VerifyEmailArgs));
-      case AppRoutes.forgotPassword:
-        return _route(const ForgotPasswordScreen());
       case AppRoutes.onboarding:
         return _route(const OnboardingScreen());
       case AppRoutes.home:

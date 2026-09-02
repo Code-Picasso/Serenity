@@ -51,7 +51,7 @@ Serenity/
 | Service | Stack | Port | DB | Responsibility |
 | --- | --- | --- | --- | --- |
 | `api-gateway` | Node TS · Express | 8000 | — | Routing, JWT verification, rate limiting, `/docs` Swagger UI |
-| `auth-service` | Node TS · Express · Prisma | 8001 | `auth-db` | Credential auth (email/password), JWT + refresh tokens, password reset |
+| `auth-service` | Node TS · Express · Prisma | 8001 | `auth-db` | Credential auth (username/password), JWT + refresh tokens |
 | `chat-service` | Node TS · Express · Prisma · Socket.IO | 8002 | `chat-db` | Conversations, messages, audio messages, realtime events |
 | `feed-service` | Go · Gin · GORM | 8004 | `feed-db` | Aggregates news/jokes, grouped interest catalog (news/sports/humor), personalised feed, search, saved articles |
 | `post-service` | Go · Gin · GORM | 8005 | `post-db` | Posts (text/image), likes, reshares, saved posts, image upload |
@@ -67,7 +67,7 @@ decoupled and independently scalable.
    (refresh tokens are stored as SHA-256 hashes).
 2. The mobile app sends `Authorization: Bearer <accessToken>` on every request.
 3. The **gateway** verifies the token and injects trusted headers
-   (`x-user-id`, `x-user-email`, `x-user-name`) before proxying.
+   (`x-user-id`, `x-user-username`, `x-user-name`) before proxying.
 4. Downstream services read those headers and never need to re-verify JWTs
    (the gateway is the security boundary). Socket.IO traffic is the exception — the
    chat service verifies the JWT from the socket handshake itself.

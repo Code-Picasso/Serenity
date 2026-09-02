@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/errors/app_exception.dart';
 import '../../../core/extensions/context_extensions.dart';
 import '../../../core/router/app_routes.dart';
 import 'providers/auth_providers.dart';
@@ -14,13 +16,13 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _email = TextEditingController();
+  final _username = TextEditingController();
   final _password = TextEditingController();
   bool _obscure = true;
 
   @override
   void dispose() {
-    _email.dispose();
+    _username.dispose();
     _password.dispose();
     super.dispose();
   }
@@ -39,10 +41,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 TextFormField(
-                  controller: _email,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.email_outlined)),
-                  validator: (v) => (v == null || !v.contains('@')) ? 'Enter a valid email' : null,
+                  controller: _username,
+                  autocorrect: false,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9_.]')),
+                    LengthLimitingTextInputFormatter(30),
+                  ],
+                  decoration: const InputDecoration(
+                    labelText: 'Username',
+                    prefixIcon: Icon(Icons.alternate_email),
+                  ),
+                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Enter your username' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -58,14 +67,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   validator: (v) => (v == null || v.isEmpty) ? 'Enter your password' : null,
                 ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () => context.push(AppRoutes.forgotPassword),
-                    child: const Text('Forgot password?'),
-                  ),
-                ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: auth.isLoading ? null : _submit,
                   child: auth.isLoading
@@ -89,12 +91,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
     try {
       await ref.read(authControllerProvider.notifier).login(
-            email: _email.text.trim(),
+            username: _username.text.trim(),
             password: _password.text,
           );
       if (mounted) context.pushAndRemoveUntil(AppRoutes.onboarding);
     } catch (e) {
-      if (mounted) context.showSnack(e.toString());
+      if (mounted) context.showSnack(errorText(e));
     }
   }
 }

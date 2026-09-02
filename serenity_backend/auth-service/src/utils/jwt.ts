@@ -3,13 +3,13 @@ import { config } from '../config';
 
 export interface TokenUser {
   id: string;
-  email: string;
+  username: string;
   name: string;
 }
 
 export interface AccessTokenPayload {
   sub: string;
-  email: string;
+  username: string;
   name: string;
 }
 
@@ -19,7 +19,7 @@ export interface RefreshTokenPayload {
 }
 
 export function signAccessToken(user: TokenUser): string {
-  const payload: AccessTokenPayload = { sub: user.id, email: user.email, name: user.name };
+  const payload: AccessTokenPayload = { sub: user.id, username: user.username, name: user.name };
   return jwt.sign(payload, config.jwtSecret, { expiresIn: config.accessExpires } as SignOptions);
 }
 

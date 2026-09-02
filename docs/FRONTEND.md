@@ -124,4 +124,4 @@ This writes the Android mipmaps and the iOS `AppIcon.appiconset` automatically.
 - Tokens are stored in **sqflite** for simplicity; for production consider
   `flutter_secure_storage`.
 - The audio message path requires the mic permission (handled at runtime by `record`).
-- Authentication is **credential-only** (email + name + password).
+- Authentication is **credential-only** (username + name + password + gender).

@@ -9,19 +9,17 @@ datasource db {
 
 model User {
   id           String   @id @default(uuid())
-  email        String   @unique
+  username     String   @unique
   passwordHash String?
   name         String
+  gender       String
   avatarUrl    String?
   provider     String   @default("credentials") // credentials | google | apple
   providerId   String?
-  isVerified   Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  refreshTokens      RefreshToken[]
-  resetTokens        PasswordResetToken[]
-  verificationTokens EmailVerificationToken[]
+  refreshTokens RefreshToken[]
 
   @@map("users")
 }
@@ -36,28 +34,4 @@ model RefreshToken {
 
   @@index([userId])
   @@map("refresh_tokens")
-}
-
-model PasswordResetToken {
-  id        String   @id @default(uuid())
-  tokenHash String   @unique
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  @@index([userId])
-  @@map("password_reset_tokens")
-}
-
-model EmailVerificationToken {
-  id        String   @id @default(uuid())
-  tokenHash String   @unique
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  @@index([userId])
-  @@map("email_verification_tokens")
 }

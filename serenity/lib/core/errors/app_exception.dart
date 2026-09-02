@@ -37,6 +37,12 @@ class CacheException extends AppException {
   const CacheException(super.message);
 }
 
+/// User-facing text for an error thrown by a repository. Avoids leaking the
+/// `AppException(409): ...` debug form into snackbars.
+String errorText(Object error) => error is AppException
+    ? error.message
+    : 'Something went wrong. Please try again.';
+
 /// Maps a [DioException] into a typed [AppException].
 AppException mapDioError(DioException e) {
   switch (e.type) {
