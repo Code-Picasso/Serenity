@@ -21,6 +21,8 @@ const PUBLIC_PATHS = [
   '/openapi.yaml',
   '/socket.io',
   '/auth/register',
+  '/auth/verify-email',
+  '/auth/resend-verification',
   '/auth/login',
   '/auth/refresh',
   '/auth/forgot-password',

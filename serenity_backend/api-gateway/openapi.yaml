@@ -59,9 +59,45 @@ paths:
                 name: { type: string }
       responses:
         '201':
-          description: Created, returns tokens and user
+          description: Created; a verification code has been emailed (dev only: devVerificationToken)
         '409':
           description: Email already registered
+  /auth/verify-email:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Verify an account with the emailed code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code: { type: string }
+      responses:
+        '200':
+          description: Verified; returns access + refresh tokens and user
+        '401':
+          description: Invalid or expired verification code
+  /auth/resend-verification:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Resend the verification code for an unverified account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '200':
+          description: Code sent if an unverified account exists (dev only: devVerificationToken)
   /auth/login:
     post:
       tags: [Auth]

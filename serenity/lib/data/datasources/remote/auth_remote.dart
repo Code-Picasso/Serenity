@@ -7,7 +7,7 @@ import '../../models/user.dart';
 class AuthRemote {
   final Dio _dio = DioClient.instance.dio;
 
-  Future<AuthResult> register({
+  Future<Map<String, dynamic>> register({
     required String email,
     required String password,
     required String name,
@@ -18,7 +18,25 @@ class AuthRemote {
         'password': password,
         'name': name,
       });
+      return res.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw mapDioError(e);
+    }
+  }
+
+  Future<AuthResult> verifyEmail({required String code}) async {
+    try {
+      final res = await _dio.post('/auth/verify-email', data: {'code': code});
       return AuthResult.fromJson(res.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw mapDioError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> resendVerification(String email) async {
+    try {
+      final res = await _dio.post('/auth/resend-verification', data: {'email': email});
+      return res.data as Map<String, dynamic>;
     } on DioException catch (e) {
       throw mapDioError(e);
     }

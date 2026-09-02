@@ -5,6 +5,8 @@ import { asyncHandler } from '../middleware/asyncHandler';
 const router = Router();
 
 router.post('/register', asyncHandler(authController.register));
+router.post('/verify-email', asyncHandler(authController.verifyEmail));
+router.post('/resend-verification', asyncHandler(authController.resendVerification));
 router.post('/login', asyncHandler(authController.login));
 router.post('/refresh', asyncHandler(authController.refresh));
 router.post('/logout', asyncHandler(authController.logout));

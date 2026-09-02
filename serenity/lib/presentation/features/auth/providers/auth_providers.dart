@@ -42,7 +42,7 @@ class AuthController extends Notifier<AuthState> {
     }
   }
 
-  Future<void> register({
+  Future<Map<String, dynamic>> register({
     required String email,
     required String password,
     required String name,
@@ -52,6 +52,19 @@ class AuthController extends Notifier<AuthState> {
       final result = await ref
           .read(authRepositoryProvider)
           .register(email: email, password: password, name: name);
+      state = const AuthState(isLoading: false);
+      return result;
+    } catch (_) {
+      state = const AuthState(isLoading: false);
+      rethrow;
+    }
+  }
+
+  Future<void> verifyEmail({required String code}) async {
+    state = state.copyWith(isLoading: true);
+    try {
+      final result =
+          await ref.read(authRepositoryProvider).verifyEmail(code: code);
       state = AuthState(user: result.user, isLoading: false);
     } catch (_) {
       state = const AuthState(isLoading: false);

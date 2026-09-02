@@ -9,15 +9,22 @@ class AuthRepository {
 
   AuthRepository(this._remote);
 
-  Future<AuthResult> register({
+  Future<Map<String, dynamic>> register({
     required String email,
     required String password,
     required String name,
-  }) async {
-    final result = await _remote.register(email: email, password: password, name: name);
+  }) {
+    return _remote.register(email: email, password: password, name: name);
+  }
+
+  Future<AuthResult> verifyEmail({required String code}) async {
+    final result = await _remote.verifyEmail(code: code);
     await _persist(result);
     return result;
   }
+
+  Future<Map<String, dynamic>> resendVerification(String email) =>
+      _remote.resendVerification(email);
 
   Future<AuthResult> login({required String email, required String password}) async {
     final result = await _remote.login(email: email, password: password);

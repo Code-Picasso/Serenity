@@ -13,6 +13,12 @@ export const authController = {
   register: (req: Request, res: Response) =>
     authService.register(req.body).then((r) => res.status(201).json(r)),
 
+  verifyEmail: (req: Request, res: Response) =>
+    authService.verifyEmail(req.body?.code).then((r) => res.json(r)),
+
+  resendVerification: (req: Request, res: Response) =>
+    authService.resendVerification(req.body?.email).then((r) => res.json(r)),
+
   login: (req: Request, res: Response) =>
     authService.login(req.body?.email, req.body?.password).then((r) => res.json(r)),
 

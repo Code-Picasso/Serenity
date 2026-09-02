@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/extensions/context_extensions.dart';
 import '../../../core/router/app_routes.dart';
 import 'providers/auth_providers.dart';
+import 'verify_email_screen.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -98,12 +99,20 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     try {
-      await ref.read(authControllerProvider.notifier).register(
+      final res = await ref.read(authControllerProvider.notifier).register(
             email: _email.text.trim(),
             password: _password.text,
             name: _name.text.trim(),
           );
-      if (mounted) context.pushAndRemoveUntil(AppRoutes.onboarding);
+      if (mounted) {
+        context.pushReplacement(
+          AppRoutes.verifyEmail,
+          arguments: VerifyEmailArgs(
+            email: _email.text.trim(),
+            devToken: res['devVerificationToken'] as String?,
+          ),
+        );
+      }
     } catch (e) {
       if (mounted) context.showSnack(e.toString());
     }

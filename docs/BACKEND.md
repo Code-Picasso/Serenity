@@ -48,6 +48,8 @@ All variables are defined in `.env.example`. The most important:
 | `JWT_SECRET` | `change-me` | Signing key shared by gateway + auth + chat |
 | `JWT_ACCESS_EXPIRES` | `15m` | Access token lifetime |
 | `JWT_REFRESH_EXPIRES` | `30d` | Refresh token lifetime |
+| `SMTP_HOST` | (empty) | SMTP server for verification/reset emails; empty = skip sending |
+| `APP_BASE_URL` | `http://localhost:8000` | Base URL used in emailed links |
 | `MOCK_MODE` | `true` | Seed sample feed content when no news API keys are set |
 | `GNEWS_API_KEY` | (empty) | GNews API key |
 | `CURRENTS_API_KEY` | (empty) | Currents API key |
@@ -68,12 +70,17 @@ curl http://localhost:8001/health            # auth (direct)
 ### Auth flow
 
 ```bash
-# register
+# register (returns a devVerificationToken in local mode, no tokens yet)
 curl -X POST http://localhost:8000/auth/register \
   -H 'Content-Type: application/json' \
   -d '{"email":"a@b.com","password":"password123","name":"Ada"}'
 
-# login
+# verify email with the emailed code (or the devVerificationToken above) -> returns tokens
+curl -X POST http://localhost:8000/auth/verify-email \
+  -H 'Content-Type: application/json' \
+  -d '{"code":"123456"}'
+
+# login (only works once verified)
 curl -X POST http://localhost:8000/auth/login \
   -H 'Content-Type: application/json' \
   -d '{"email":"a@b.com","password":"password123"}'
@@ -108,7 +115,7 @@ Each service can be run directly. Example for the auth service:
 cd serenity_backend/auth-service
 npm install
 npx prisma generate
-DATABASE_URL='postgresql://serenity:serenity@localhost:5432/auth?schema=public' npm run dev
+DATABASE_URL='postgresql://serenity:serenity@localhost:5438/auth?schema=public' npm run dev
 ```
 
 Example for the feed service:

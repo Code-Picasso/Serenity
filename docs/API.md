@@ -15,6 +15,8 @@ Interactive docs (Swagger UI) are available at `http://localhost:8000/docs`.
 | Method | Path | Auth | Description |
 | --- | --- | --- | --- |
 | POST | `/auth/register` | — | Create account (`email`, `password`, `name`) |
+| POST | `/auth/verify-email` | — | Verify account with emailed code (`code`) |
+| POST | `/auth/resend-verification` | — | Resend verification code (`email`) |
 | POST | `/auth/login` | — | Login with credentials |
 | POST | `/auth/refresh` | — | Exchange refresh token for a new pair |
 | POST | `/auth/logout` | ✓ | Revoke refresh token |
@@ -23,7 +25,16 @@ Interactive docs (Swagger UI) are available at `http://localhost:8000/docs`.
 | POST | `/auth/reset-password` | — | Reset with token + new password |
 | POST | `/auth/change-password` | ✓ | Change password |
 
-### Example — register/login response
+### Example — register response
+
+```json
+{ "message": "Check your email to verify your account.", "devVerificationToken": "123456" }
+```
+
+`devVerificationToken` is only returned when `NODE_ENV` is not `production` (so the
+flow can be completed locally without SMTP). In production the code is emailed.
+
+### Example — verify-email / login response
 
 ```json
 {
